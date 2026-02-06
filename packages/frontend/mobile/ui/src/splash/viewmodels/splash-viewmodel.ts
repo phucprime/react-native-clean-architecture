@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable, runInAction } from 'mobx';
 import { Auth } from '@services/domain';
 
 export interface SplashViewFlow {
@@ -28,9 +28,15 @@ class SplashViewModel {
     });
   }
 
-  login() {
-    this.loginUsecase('Username', 'password');
-    this.count++;
+  async login() {
+    try {
+      await this.loginUsecase('Username', 'password');
+      runInAction(() => {
+        this.count++;
+      });
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   }
 }
 
