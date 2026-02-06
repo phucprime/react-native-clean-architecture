@@ -1,19 +1,24 @@
 import { action, makeObservable, observable } from 'mobx';
-import { AuthRepository } from '@services/domain';
+import { Auth } from '@services/domain';
 
 export interface SplashViewFlow {
   toAuth(): void;
 }
 
+export type LoginUsecase = (
+  username: string,
+  password: string,
+) => Promise<Auth>;
+
 class SplashViewModel {
-  authRepository: AuthRepository;
+  loginUsecase: LoginUsecase;
   splashViewFlow: SplashViewFlow;
 
   title: string = 'Hello from React Native';
   count: number = 0;
 
-  constructor(authRepository: AuthRepository, splashViewFlow: SplashViewFlow) {
-    this.authRepository = authRepository;
+  constructor(loginUsecase: LoginUsecase, splashViewFlow: SplashViewFlow) {
+    this.loginUsecase = loginUsecase;
     this.splashViewFlow = splashViewFlow;
 
     makeObservable(this, {
@@ -24,7 +29,7 @@ class SplashViewModel {
   }
 
   login() {
-    this.authRepository.login('Username', 'password');
+    this.loginUsecase('Username', 'password');
     this.count++;
   }
 }

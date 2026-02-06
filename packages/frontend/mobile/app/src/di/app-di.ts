@@ -1,13 +1,17 @@
-import { AuthRepository } from '@services/domain';
+import { loginUsecase } from '@services/domain';
 import { DefaultAuthRepository } from '@services/platform';
 import { DefaultAuthRemote } from '@services/remote';
 import { DefaultAuthCredentialStore } from '@services/store';
 import { SplashDI } from '@mobile/ui';
 
 export default class AppDI implements SplashDI {
-  authRepository(): AuthRepository {
+  loginUsecase() {
     const authRemote = new DefaultAuthRemote();
     const authCredentialStore = new DefaultAuthCredentialStore();
-    return new DefaultAuthRepository(authRemote, authCredentialStore);
+    const authRepository = new DefaultAuthRepository(
+      authRemote,
+      authCredentialStore,
+    );
+    return loginUsecase(authRepository);
   }
 }

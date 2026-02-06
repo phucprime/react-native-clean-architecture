@@ -9,7 +9,7 @@ const SplashViewModelContext = createContext<SplashViewModel | unknown>({});
 export const SplashViewModelContextProvider: FC = ({ children }) => {
   const di = useServiceFactory<SplashDI>();
   const flow = useSplashFlow();
-  const viewModel = new SplashViewModel(di.authRepository(), {
+  const viewModel = new SplashViewModel(di.loginUsecase(), {
     toAuth: flow.toAuth,
   });
   return (

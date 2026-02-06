@@ -1,9 +1,9 @@
-import { AuthRemote } from '@services/platform';
+import { AuthRemote, AuthDto } from '@services/platform';
 
 class DefaultAuthRemote implements AuthRemote {
-  login(username: string, password: string): string {
+  async login(username: string, password: string): Promise<AuthDto> {
     console.log(`Auth login: ${username}: ${password}`);
-    return 'authtoken';
+    return { access_token: 'authtoken' };
   }
 }
 
