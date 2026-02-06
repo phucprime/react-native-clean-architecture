@@ -1,88 +1,284 @@
-# Clean React Native
+# React Native Clean Architecture (Feature-based)
 
-A sample project demostrating CLEAN architecture in react native app. It follows the modular approach using `Yarn Workspaces` implementing `Clean Architecture` + `MVVM` with MobX.
+A **practical, scalable Clean Architecture** for React Native projects, organized **feature-first** with **only 3 layers**:
 
-Applying clean architecture to a react codebase brings lots of benefits, most of them you can find by simply googling what's clean architecture and what should we adopt architectural patterns.
+> **presentation / domain / data**
 
-One advantage that strikes me is having business rules isolated from framework-specific things. This means that our core logic is not coupled to React, React Native, Express, etc...  
-This gives you enough flexibility to, for example, move specific parts of the application to a backend, change libraries without too much pain, test once and reuse as many times as you want, share code between React and React Native applications, among others.
+This architecture is battle-tested for large RN apps (Super App, Fintech, Banking) while staying **simple enough for daily development**.
 
-> ⚠️ Please notice that I'm not saying this is the _right_ way to do React Native. This is just an approach which could be useful on larger codebases, where on small projects it may be an overshoot.
+---
 
-## Key features
+## 🎯 Goals
 
-- React Native app with [Typescript](https://www.typescriptlang.org/)
-- Modular + [Monorepo approach](https://www.kpiteng.com/blogs/yarn-workspaces-monorepo-approach/) using [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/)
-- [CLEAN Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Flow coordinator](https://khanlou.com/2015/01/the-coordinator/) pattern
-- [react-nativation](https://reactnavigation.org/docs/getting-started)
-- [MVVM](https://github.com/prashantLalShrestha/clean-react-native/tree/main/packages/frontend/mobile/ui/src/splash)
-- State Management with [MobX](https://mobx.js.org/react-integration.html)
+* Clear separation of concerns
+* Scalable feature development
+* Business logic independent from UI & frameworks
+* Easy testing and refactoring
+* Avoid over‑engineering
 
-## CLEAN Architecture
+---
 
-<p align="center">
-  <img src="https://github.com/prashantLalShrestha/clean-react-native/blob/main/images/CleanArchitecture.jpg" alt="Diagram"/>
-</p>
+## 🧱 Core Concept
 
-The nomenclature may vary, but the concept behind this architectural pattern is: the domain dictates how tools should be organized and not the other way around. What I mean by that is that we should organize our codebase around the business rules and not around the frameworks we use to achieve business rules.
-
-The diagram above shows how the dependency rule works, the inner circles must not know about the outer circles. That is, there cannot be an import of a use case within an entity, or import of a framework within a use case.
-
-Another important rule is: entities and use cases should not rely on external libraries. The explanation is simple, the core of our application must be robust enough and malleable enough to meet the demands of the business without needing any external intervention.
-
-If by chance, an essential part of the application core MUST BE an external dependency. Dependency needs to be modeled following [dependency inversion principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle).
-
-## MVVM
-
-<p align="center">
-  <img src="https://github.com/prashantLalShrestha/clean-react-native/blob/main/images/MVVMPattern.png" alt="Diagram"/>
-</p>
-
-## Project Structure
+Each **feature** owns its full vertical slice:
 
 ```
-./packages
-├── frontend
-│   └── mobile
-│       ├── app - Main react-native app
-│       │   ├── di
-│       │   ├── flow
-│       │   ├── navigation
-│       │   └── App.tsx
-│       ├── base
-│       ├── res - contains all the resources required, including colors, images, fonts, strings, etc.
-│       │   ├── assets
-│       │   └── R - index.ts similar to android
-│       ├── ui - contains feature ui modules
-│       │   └── feature
-│       │       ├── di
-│       │       ├── flow
-│       │       ├── navigation
-│       │       ├── screens
-│       │       └── viewmodels
-│       └── views - reusable view components
-└── modules
-    └── services
-        ├── domain
-        │   ├── common
-        │   ├── model
-        │   └── repositories - interfaces
-        ├── platform
-        │   ├── contract
-        │   │  ├── remote - interfaces
-        │   │  └── store - interfaces
-        │   └── repositories - implementation
-        ├── remote
-        │   ├── common
-        │   ├── api-client + endpoint
-        │   └── remote - implementation
-        └── store
-            ├── common
-            ├── model
-            └── store - implementation
+src/features/<feature>/
+  presentation/   # UI + State + ViewModel
+  domain/         # Business rules
+  data/           # API & persistence
 ```
 
-## Running the apps
+No cross-feature imports. No shared god-modules.
 
-run `yarn` under the root of the project, and then run `yarn ios:pods`.
+---
+
+## 🧭 Dependency Rule (Most Important Rule)
+
+```
+Presentation → Domain ← Data
+```
+
+✅ Presentation **depends on** Domain
+✅ Data **depends on** Domain (via interfaces)
+❌ Domain **depends on nothing**
+
+Violating this rule breaks Clean Architecture.
+
+---
+
+## 🗂️ Feature Folder Structure
+
+Example: `hui` feature
+
+```
+features/hui/
+├── presentation/
+│   ├── screens/
+│   ├── viewmodels/
+│   ├── state/
+│   │   ├── hui.slice.ts
+│   │   ├── hui.saga.ts
+│   │   └── hui.selectors.ts
+│   └── components/
+│
+├── domain/
+│   ├── entities/
+│   │   └── Hui.ts
+│   └── usecases/
+│       ├── createHui.ts
+│       └── index.ts
+│
+└── data/
+    ├── dto/
+    ├── mappers/
+    ├── datasources/
+    └── repositories/
+```
+
+---
+
+## 🎨 Presentation Layer
+
+**Responsibility:** UI & UI state
+
+Contains:
+
+* Screens (React Native components)
+* ViewModels (hooks)
+* Redux / Saga / Context
+* UI-only logic
+
+Rules:
+
+* ❌ No API calls
+* ❌ No business rules
+* ✅ Calls **usecases** only
+
+```ts
+// presentation/state/hui.saga.ts
+import { huiUsecases } from '../../domain/usecases';
+
+function* createHuiSaga(action) {
+  const entity = yield call(huiUsecases.createHui, action.payload);
+  yield put(createSucceeded(entity.huiId));
+}
+```
+
+---
+
+## 💼 Domain Layer (The Core)
+
+**Responsibility:** Business logic
+
+Contains:
+
+* Entities (business models)
+* Usecases (business flows)
+
+Rules:
+
+* ❌ No React / Redux / Axios
+* ❌ No API knowledge
+* ✅ Pure TypeScript
+* ✅ Fully testable
+
+```ts
+// domain/usecases/createHui.ts
+export interface HuiRepository {
+  create(input: CreateHuiInput): Promise<Hui>;
+}
+
+export const createHui = (repo: HuiRepository) => async (input) => {
+  if (input.amount <= 0) throw new Error('Invalid amount');
+  return repo.create(input);
+};
+```
+
+---
+
+## 🔌 Data Layer
+
+**Responsibility:** Data access
+
+Contains:
+
+* API calls
+* Local storage
+* DTO ↔ Entity mapping
+
+Rules:
+
+* ❌ No UI imports
+* ❌ No business decisions
+* ✅ Implements repository interfaces
+
+```ts
+// data/repositories/huiRepository.ts
+export const huiRepository: HuiRepository = {
+  async create(input) {
+    const dto = await huiApi.create(input);
+    return huiMapper.toDomain(dto);
+  },
+};
+```
+
+---
+
+## 🔄 Data Transformation Flow (Mandatory)
+
+```
+API DTO (snake_case)
+  ↓
+Mapper
+  ↓
+Domain Entity (camelCase)
+  ↓
+Usecase
+  ↓
+Saga / ViewModel
+  ↓
+Presentation State
+```
+
+🚫 Never expose DTOs outside `data/`.
+
+---
+
+## 🔁 Full Runtime Flow
+
+```
+User Action
+  → Screen
+  → ViewModel
+  → Redux Action
+  → Saga
+  → Usecase (Domain)
+  → Repository (Data)
+  → API
+  → Mapper → Entity
+  → Saga
+  → Reducer
+  → UI Update
+```
+
+---
+
+## 🧠 State Management Rules
+
+| Use case               | Solution           |
+| ---------------------- | ------------------ |
+| Global / cross-feature | Redux              |
+| One flow (wizard)      | Context / Provider |
+| UI-only                | Local state        |
+
+State management is **presentation detail**, not domain concern.
+
+---
+
+## 🚫 Common Anti‑Patterns
+
+### ❌ Saga importing API or Repository
+
+```ts
+import { huiApi } from '../../data/datasources'; // WRONG
+```
+
+### ❌ Business logic in UI or Saga
+
+```ts
+if (amount <= 0) alert('Invalid'); // WRONG
+```
+
+### ❌ Domain importing framework
+
+```ts
+import axios from 'axios'; // WRONG
+```
+
+---
+
+## 🧪 Testing Strategy
+
+* **Domain**: unit tests (mandatory)
+* **Data**: integration tests (API mapping)
+* **Presentation**: behaviour tests
+* **E2E**: only critical flows
+
+Clean Architecture makes testing cheap and focused.
+
+---
+
+## ⚖️ Clean but Not Overkill
+
+Apply **by importance**:
+
+* Core domains (Finance, Payment, Loan): full 3 layers
+* Simple/support features: lighter structure allowed
+
+Architecture should **accelerate delivery**, not slow it down.
+
+---
+
+## ✅ Checklist for New Feature
+
+* [ ] Feature folder created
+* [ ] 3 layers respected
+* [ ] Domain has no framework imports
+* [ ] Saga calls usecase only
+* [ ] DTOs mapped to entities
+* [ ] Business rules tested
+
+---
+
+## 🏁 Summary
+
+* Feature-first
+* 3 layers only
+* Domain is king
+* Dependencies flow inward
+* Simple rules, strong guardrails
+
+This structure scales from **1 dev to 50 devs** without collapsing.
+
+Happy building 🚀
