@@ -49,24 +49,24 @@ Violating this rule breaks Clean Architecture.
 
 ## 🗂️ Feature Folder Structure
 
-Example: `hui` feature
+Example: `feat1` feature
 
 ```
-features/hui/
+features/feat1/
 ├── presentation/
 │   ├── screens/
 │   ├── viewmodels/
 │   ├── state/
-│   │   ├── hui.slice.ts
-│   │   ├── hui.saga.ts
-│   │   └── hui.selectors.ts
+│   │   ├── feat1.slice.ts
+│   │   ├── feat1.saga.ts
+│   │   └── feat1.selectors.ts
 │   └── components/
 │
 ├── domain/
 │   ├── entities/
-│   │   └── Hui.ts
+│   │   └── feat1.ts
 │   └── usecases/
-│       ├── createHui.ts
+│       ├── createFeat1.ts
 │       └── index.ts
 │
 └── data/
@@ -96,12 +96,12 @@ Rules:
 * ✅ Calls **usecases** only
 
 ```ts
-// presentation/state/hui.saga.ts
-import { huiUsecases } from '../../domain/usecases';
+// presentation/state/feat1.saga.ts
+import { feat1Usecases } from '../../domain/usecases';
 
-function* createHuiSaga(action) {
-  const entity = yield call(huiUsecases.createHui, action.payload);
-  yield put(createSucceeded(entity.huiId));
+function* createFeat1Saga(action) {
+  const entity = yield call(feat1Usecases.createFeat1, action.payload);
+  yield put(createSucceeded(entity.feat1Id));
 }
 ```
 
@@ -124,12 +124,12 @@ Rules:
 * ✅ Fully testable
 
 ```ts
-// domain/usecases/createHui.ts
-export interface HuiRepository {
-  create(input: CreateHuiInput): Promise<Hui>;
+// domain/usecases/createFeat1.ts
+export interface Feat1Repository {
+  create(input: CreateFeat1Input): Promise<Feat1>;
 }
 
-export const createHui = (repo: HuiRepository) => async (input) => {
+export const createFeat1 = (repo: Feat1Repository) => async (input) => {
   if (input.amount <= 0) throw new Error('Invalid amount');
   return repo.create(input);
 };
@@ -154,11 +154,11 @@ Rules:
 * ✅ Implements repository interfaces
 
 ```ts
-// data/repositories/huiRepository.ts
-export const huiRepository: HuiRepository = {
+// data/repositories/feat1Repository.ts
+export const feat1Repository: Feat1Repository = {
   async create(input) {
-    const dto = await huiApi.create(input);
-    return huiMapper.toDomain(dto);
+    const dto = await feat1Api.create(input);
+    return feat1Mapper.toDomain(dto);
   },
 };
 ```
@@ -221,7 +221,7 @@ State management is **presentation detail**, not domain concern.
 ### ❌ Saga importing API or Repository
 
 ```ts
-import { huiApi } from '../../data/datasources'; // WRONG
+import { feat1Api } from '../../data/datasources'; // WRONG
 ```
 
 ### ❌ Business logic in UI or Saga
