@@ -1,7 +1,7 @@
-import { AuthRepository } from '@services/domain';
+import { LoginUsecase } from '../viewmodels/splash-viewmodel';
 
 interface SplashDI {
-  authRepository(): AuthRepository;
+  loginUsecase(): LoginUsecase;
 }
 
 export default SplashDI;
