@@ -1,19 +1,12 @@
 import {
-  loginUsecase,
-  DefaultAuthRepository,
-  DefaultAuthRemote,
-  DefaultAuthCredentialStore,
+  createAuthDI,
   SplashDI,
 } from '@features/auth';
 
 export default class AppDI implements SplashDI {
+  private readonly authDI = createAuthDI();
+
   loginUsecase() {
-    const authRemote = new DefaultAuthRemote();
-    const authCredentialStore = new DefaultAuthCredentialStore();
-    const authRepository = new DefaultAuthRepository(
-      authRemote,
-      authCredentialStore,
-    );
-    return loginUsecase(authRepository);
+    return this.authDI.loginUsecase();
   }
 }

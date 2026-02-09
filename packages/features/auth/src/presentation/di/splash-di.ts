@@ -1,7 +1,5 @@
-import { LoginUsecase } from '../viewmodels/splash-viewmodel';
+import { AuthDI } from '../../di';
 
-interface SplashDI {
-  loginUsecase(): LoginUsecase;
-}
+type SplashDI = AuthDI;
 
 export default SplashDI;

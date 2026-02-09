@@ -1,3 +1,3 @@
 export * from './domain';
-export * from './data';
+export * from './di';
 export * from './presentation';
