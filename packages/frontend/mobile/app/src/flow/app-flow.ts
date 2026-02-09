@@ -1,5 +1,5 @@
 import { getAppNavigation } from './../navigation';
-import { SplashFlow, SplashFlowFactory } from '@mobile/ui';
+import { SplashFlow, SplashFlowFactory } from '@features/auth';
 
 class AppFlow implements SplashFlowFactory {
   protected readonly navigation = getAppNavigation();

@@ -5,7 +5,7 @@
   "workspaces": {
     "packages": [
       "packages/frontend/mobile/*",
-      "packages/modules/services/*"
+      "packages/features/*"
     ],
     "nohoist": [
       "**/react",

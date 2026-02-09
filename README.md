@@ -53,6 +53,9 @@ Example: `feat1` feature
 
 ```
 features/feat1/
+├── di/
+│   └── feat1-di.ts          # Root DI: wires data → domain
+│
 ├── presentation/
 │   ├── screens/
 │   ├── viewmodels/
@@ -165,6 +168,44 @@ export const feat1Repository: Feat1Repository = {
 
 ---
 
+## 🧩 Root DI (Dependency Injection)
+
+Each feature has a **root-level DI file** that wires all layers together.
+
+**Responsibility:** Connect data implementations to domain usecases
+
+Contains:
+
+* DI interface (what the feature provides)
+* Factory function (creates wired dependencies)
+
+Rules:
+
+* ✅ Only place that knows both domain and data
+* ✅ Exports a factory — app calls it, never wires internals
+* ❌ Data layer implementations must not leak outside the feature
+
+```ts
+// di/feat1-di.ts
+export interface Feat1DI {
+  createFeat1(): (input: CreateFeat1Input) => Promise<Feat1>;
+}
+
+export function createFeat1DI(): Feat1DI {
+  return {
+    createFeat1() {
+      const api = new Feat1Api();
+      const repo = new Feat1RepositoryImpl(api);
+      return createFeat1Usecase(repo);
+    },
+  };
+}
+```
+
+The app only calls `createFeat1DI()` — it never touches data layer classes directly.
+
+---
+
 ## 🔄 Data Transformation Flow (Mandatory)
 
 ```
@@ -236,6 +277,14 @@ if (amount <= 0) alert('Invalid'); // WRONG
 import axios from 'axios'; // WRONG
 ```
 
+### ❌ Domain importing from Data layer
+
+```ts
+import { AuthRepository } from '../../data/repositories'; // WRONG
+```
+
+Domain must **never** depend on Data. Repository **interfaces** belong in `domain/usecases/`, while **implementations** belong in `data/repositories/`.
+
 ---
 
 ## 🧪 Testing Strategy
@@ -264,9 +313,11 @@ Architecture should **accelerate delivery**, not slow it down.
 
 * [ ] Feature folder created
 * [ ] 3 layers respected
+* [ ] Root DI file wires data → domain
 * [ ] Domain has no framework imports
 * [ ] Saga calls usecase only
 * [ ] DTOs mapped to entities
+* [ ] Data layer internals not exported outside feature
 * [ ] Business rules tested
 
 ---

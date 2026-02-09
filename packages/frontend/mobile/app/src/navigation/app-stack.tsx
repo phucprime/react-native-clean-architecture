@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SplashStack } from '@mobile/ui';
+import { SplashStack } from '@features/auth';
 import { Routes } from './routes';
 
 export type AppStackParamList = {
