@@ -4,7 +4,7 @@ import { SplashFlow, SplashFlowFactory } from '.';
 
 const defaultSplashFlow: SplashFlow = {
   toAuth() {
-    console.warn('SplashFlow: toAuth() function is nor implemented');
+    console.warn('SplashFlow: toAuth() function is not implemented');
   },
 };
 
