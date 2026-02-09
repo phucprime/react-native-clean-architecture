@@ -1,5 +1,8 @@
 import Auth from '../entities/auth';
-import AuthRepository from '../repositories/auth-repository';
+
+export interface AuthRepository {
+  login: (username: string, password: string) => Promise<Auth>;
+}
 
 const loginUsecase =
   (authRepository: AuthRepository) =>

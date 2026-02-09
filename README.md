@@ -236,6 +236,14 @@ if (amount <= 0) alert('Invalid'); // WRONG
 import axios from 'axios'; // WRONG
 ```
 
+### ❌ Domain importing from Data layer
+
+```ts
+import { AuthRepository } from '../../data/repositories'; // WRONG
+```
+
+Domain must **never** depend on Data. Repository **interfaces** belong in `domain/usecases/`, while **implementations** belong in `data/repositories/`.
+
 ---
 
 ## 🧪 Testing Strategy
